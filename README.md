@@ -1,3 +1,7 @@
+# Description
+
+This project is my learning path miniproject in react redux/toolkit in typescript. It includes some simple css with main focus on functionality of the note taking app.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
