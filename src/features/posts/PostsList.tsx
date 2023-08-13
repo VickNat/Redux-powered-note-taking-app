@@ -1,28 +1,31 @@
-import React from 'react'
-import { useAppSelector } from '../../app/hooks'
-import { selectAllPosts } from './postsSlice'
-import SinglePost from './SinglePost'
+import {
+    selectAllError,
+    selectAllStatus,
+    selectPostIds
+} from "./postsSlice";
+import PostExcerpt from "./PostExcerpt";
+import { useAppSelector } from "../../app/hooks";
 
-const PostsList: React.FC = () => {
+const PostsList = () => {
 
-  const posts = useAppSelector(selectAllPosts)
+    const orderedPostIds = useAppSelector(selectPostIds)
+    const status = useAppSelector(selectAllStatus)
+    const error = useAppSelector(selectAllError)
 
-  const orderedPosts = posts.slice().sort((a, b) => b.date.localeCompare(a.date))
+    let content;
 
-  const renderedPosts = orderedPosts.map((post) => {
+    if (status === 'loading') {
+        content = <p>Loading...</p>
+    } else if (status === 'succeeded') {
+        content = orderedPostIds.map(postId => <PostExcerpt key={postId} postId={postId} />)
+    } else if (status === 'failed') {
+        content = <p>{error}</p>
+    }
+
     return (
-      <article key={post.id}>
-        <SinglePost postId={post.id} />
-      </article>
+        <section>
+            {content}
+        </section>
     )
-  })
-
-  return (
-    <section>
-      <h2>Notes</h2>
-      {renderedPosts}
-    </section>
-  )
 }
-
 export default PostsList

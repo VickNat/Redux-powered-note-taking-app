@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { postAdded } from './postsSlice'
+import { addNewPost } from './postsSlice'
 import { selectAllUsers } from '../users/usersSlice'
+import { useNavigate } from 'react-router-dom'
 
 
 const AddPostForm: React.FC = () => {
@@ -9,6 +10,9 @@ const AddPostForm: React.FC = () => {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [userId, setUserId] = useState("")
+  const [addRequestStatus, setAddRequestStatus] = useState('idle')
+  
+  const navigate = useNavigate()
 
   const dispatch = useAppDispatch()
   const users = useAppSelector(selectAllUsers)
@@ -16,17 +20,26 @@ const AddPostForm: React.FC = () => {
   const onTitleChanged = (e: { target: { value: React.SetStateAction<string> } }) => setTitle(e.target.value)
   const onContentChanged = (e: { target: { value: React.SetStateAction<string> } }) => setContent(e.target.value)
   const onAuthorChanged = (e: { target: { value: React.SetStateAction<string> } }) => setUserId(e.target.value)
+  
+  const canSave = [title, content, userId].every(Boolean) && addRequestStatus === 'idle'
 
   const onSavePostClicked = () => {
-    if (title && content) {
-      dispatch(postAdded(title, content, userId))
+    if (canSave) {
+      try {
+        setAddRequestStatus('pending')
+        dispatch(addNewPost({title, body: content, userId})).unwrap()
+  
+        setTitle('')
+        setContent('')
+        setUserId('')
+        navigate('/')
+      } catch (error) {
+        console.log("Failed to load post", error);
+      } finally {
+        setAddRequestStatus('idle')
+      }
     }
-
-    setTitle('')
-    setContent('')
   }
-
-  const canSave = Boolean(title) && Boolean(content) && Boolean(userId)
 
   const userOptions = users.map((user) => (
     <option key={user.id} value={user.id}>
